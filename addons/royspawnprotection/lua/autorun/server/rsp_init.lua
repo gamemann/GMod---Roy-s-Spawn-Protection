@@ -5,13 +5,13 @@ local info = util.JSONToTable(file.Read(path, "DATA"))
 -- Config.
 RSP = {}
 
-RSP.startTouch = true			-- If true, once the player re-enters the spawn protection zone (after being respawned), it will protect them.
 RSP.announce = true				-- If true, the player will be notified when they are and are not protected.
 RSP.attackerAnnounce = true		-- If true, when somebody attacks somebody who is protected, it will notify them the player is protected.
 RSP.attackerNoDamage = true		-- If true, players who are spawn protected cannot do damage to other players.
 
 -- Global variables.
 RSP_Protected = {}
+RSP_FirstTouch = {}
 
 -- Adds all the spawn protection zones.
 local function addZones()
@@ -46,6 +46,9 @@ local function addZones()
 			
 			-- Make the entity a trigger so ENT:StartTouch() and ENT:EndTouch() works.
 			ent:SetTrigger(true)
+			
+			-- Set an entity variable tied to the "retouch" key.
+			ent.Retouch = v.retouch
 			
 			-- Spawn the entity.
 			ent:Spawn()
@@ -101,14 +104,9 @@ end)
 
 -- Player spawn hook.
 hook.Add("PlayerSpawn", "RSP_PlayerSpawn", function(ply)
-	-- Set the player as protected.
-	RSP_Protected[ply:EntIndex()] = true
-	
-	-- Check if announce is enabled.
-	if RSP.announce then
-		-- Print them a message.
-		ply:ChatPrint("[RSP] You are protected!")
-	end
+	-- Reset variables.
+	RSP_FirstTouch[ply:EntIndex()] = false
+	RSP_Protected[ply:EntIndex()] = false
 end)
 
 hook.Add("EntityTakeDamage", "RSP_EntityTakeDamage", function(ent, dmginfo)
@@ -136,3 +134,13 @@ hook.Add("EntityTakeDamage", "RSP_EntityTakeDamage", function(ent, dmginfo)
 		return true
 	end
 end)
+
+--[[
+concommand.Add("getarea", function(ply)
+	local p1 = Vector(1228.444580, -7361.541504, -134.968750)
+	local p2 = Vector(4020.968750, -4360.031250, -134.968750)
+	local c = Vector((p1 + p2) / 2)
+	
+	print(c)
+end)
+]]--

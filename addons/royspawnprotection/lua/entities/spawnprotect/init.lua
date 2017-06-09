@@ -6,10 +6,17 @@ include("shared.lua")
 -- Start Touch entity function.
 function ENT:StartTouch(ent)
 	-- Check if the entity is valid.
-	if not IsValid(ent) or not ent:IsPlayer() or not RSP.startTouch or RSP_Protected[ent:EntIndex()] then return end
+	if not IsValid(ent) or not ent:IsPlayer() or RSP_Protected[ent:EntIndex()] then return end
+	
+	if not self.Retouch and RSP_FirstTouch[ent:EntIndex()] then return end
 	
 	-- They're protected!
 	RSP_Protected[ent:EntIndex()] = true
+	
+	-- Set FirstTouch to true if it isn't already.
+	if not RSP_FirstTouch[ent:EntIndex()] then
+		RSP_FirstTouch[ent:EntIndex()] = true
+	end
 	
 	-- Check if announce is set to true.
 	if RSP.announce then
